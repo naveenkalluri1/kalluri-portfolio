@@ -1,16 +1,15 @@
-// Update the placeholder links (linkedin / github / leetcode) with your real URLs.
 export const profile = {
   name: "NaveenKumar Kalluri",
   roles: [
     "Enterprise Integration Engineer",
     "Banner ERP & Ethos API Specialist",
-    "AWS Cloud Automation Builder",
+    "REST API & Integration Developer",
     "Full-Stack Developer",
   ],
   tagline:
     "I build real-time, resilient integrations that connect higher-education ERPs with the cloud — cutting manual work by 80%.",
   location: "Bangalore, India",
-  photo: "photo.jpg", // put your photo at portfolio/public/photo.jpg
+  photo: "photo.jpg", // put your photo at public/photo.jpg
   email: "naveenkumarkalluri341@gmail.com",
   phone: "+91-7032101914",
   links: {
