@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { profile, stats, experience, projects, skills, achievements, education } from "./data.js";
-import AmbientMusic from "./AmbientMusic.jsx";
 
 const NAV = ["about", "pipeline", "experience", "projects", "skills", "contact"];
 const hash = (s) => Array.from(s).reduce((h, c) => ((h << 5) - h + c.charCodeAt(0)) | 0, 7).toString(16).replace("-", "").padStart(7, "0").slice(0, 7);
@@ -511,7 +510,6 @@ gpa: ${education.gpa}`}</pre>
         <p>© {new Date().getFullYear()} {profile.name} · built with React · <kbd>Ctrl</kbd> <kbd>K</kbd> for command palette</p>
       </footer>
 
-      <AmbientMusic />
       <CommandPalette open={palette} setOpen={setPalette} actions={actions} />
     </>
   );

@@ -73,15 +73,10 @@ button { cursor: pointer; }
 .nav li a.on { color: var(--text); background: rgba(61,255,176,.1); box-shadow: inset 0 0 0 1px rgba(61,255,176,.25); }
 .kbtn { background: none; border: 0; display: flex; gap: 4px; }
 .menu-toggle { display: none !important; }
-.nav-utilities, .music-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.nav-utilities { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .utility-btn { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 36px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--panel-b); background: var(--panel); font: .75rem var(--mono); white-space: nowrap; }
 .utility-btn:hover, .utility-btn[aria-pressed="true"] { color: var(--g); border-color: var(--g); }
 .utility-btn:disabled { opacity: .6; cursor: wait; }
-.music-volume { width: 60px; padding: 0; accent-color: var(--g); }
-.music-dock { position: fixed; bottom: max(20px, env(safe-area-inset-bottom)); right: 20px; z-index: 60; padding: 7px; border-radius: 999px; background: var(--panel); border: 1px solid var(--panel-b); backdrop-filter: blur(18px); box-shadow: 0 8px 24px rgba(0,0,0,.15); }
-.music-dock .utility-btn { width: 42px; height: 42px; border-radius: 50%; padding: 0; }
-.music-dock .music-volume { margin-right: 8px; }
-.audio-error { position: absolute; bottom: 70px; right: 0; width: min(280px, 80vw); padding: 12px; background: var(--bg); border: 1px solid var(--panel-hi); border-radius: 8px; font-size: .85rem; }
 button:focus-visible, a:focus-visible { outline: 2px solid var(--c); outline-offset: 4px; }
 kbd { font: .7rem var(--mono); padding: 2px 7px; border-radius: 5px; background: rgba(255,255,255,.07); border: 1px solid var(--panel-b); border-bottom-width: 2px; color: var(--muted); }
 
@@ -266,8 +261,7 @@ footer { text-align: center; padding: 36px 20px 48px; color: var(--muted); font:
   .nav { gap: 10px; padding-left: 12px; max-width: 100%; }
   .logo { font-size: .7rem; }
   .utility-label, .kbtn { display: none; }
-  .nav-utilities, .music-controls { gap: 5px; }
-  .music-volume { width: 42px; }
+  .nav-utilities { gap: 5px; }
 }
 @media (max-width: 980px) {
   .hero { grid-template-columns: 1fr; padding-top: 110px; }
