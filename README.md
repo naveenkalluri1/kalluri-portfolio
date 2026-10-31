@@ -10,13 +10,27 @@ Run `npm run build` to generate the production site in `dist`.
 
 Add a portrait at `public/photo.jpg` to replace the NK monogram.
 
-## GitHub Pages
+## Theme and audio
 
-In repository **Settings > Pages > Build and deployment**, select
-**GitHub Actions** as the source. Do not select **Deploy from a branch**:
-the source HTML references JSX that must first be compiled by Vite.
+Use the header toggle or command palette to switch between dark and light.
+The initial theme follows the system preference; manual choices are saved locally.
+On smaller screens, the header menu button opens all six section links. Selecting
+a link, tapping outside, or pressing Escape closes the menu.
 
-Push to `main` or run **Deploy to GitHub Pages** from the Actions tab.
-The workflow builds and deploys `dist`, including the resume and assets.
+The bottom-right speaker button plays an original, gentle major-key piano-style
+sequence generated with Web Audio. Visitors must press it to enable sound (no
+autoplay). Press it again to pause; a volume slider appears during playback.
+No audio file, download, or external music service is needed.
 
-Site: https://naveenkalluri1.github.io/kalluri-portfolio/
+## Vercel
+
+Import this GitHub repository into Vercel and use these settings:
+
+- Framework preset: **Vite**
+- Root directory: repository root (`.`)
+- Build command: `npm run build`
+- Output directory: `dist`
+- Install command: `npm ci`
+
+Vercel builds and publishes the site on each push. No GitHub Pages workflow
+or custom Vercel configuration file is required.

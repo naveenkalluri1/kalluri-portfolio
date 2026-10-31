@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { profile, stats, experience, projects, skills, achievements, education } from "./data.js";
+import AmbientMusic from "./AmbientMusic.jsx";
 
 const NAV = ["about", "pipeline", "experience", "projects", "skills", "contact"];
 const hash = (s) => Array.from(s).reduce((h, c) => ((h << 5) - h + c.charCodeAt(0)) | 0, 7).toString(16).replace("-", "").padStart(7, "0").slice(0, 7);
@@ -184,10 +185,31 @@ const PIPE = [
 
 /* ---------- app ---------- */
 export default function App() {
+  const [theme, setTheme] = useState(() => {
+    try {
+      const saved = localStorage.getItem("theme");
+      if (saved === "dark" || saved === "light") return saved;
+    } catch (error) {
+      console.warn("Unable to read theme preference:", error);
+    }
+    return matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  });
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    try {
+      localStorage.setItem("theme", theme);
+    } catch (error) {
+      console.warn("Unable to save theme preference:", error);
+    }
+  }, [theme]);
+  const toggleTheme = () => setTheme((current) => current === "dark" ? "light" : "dark");
   const role = useTypewriter(profile.roles);
   const [active, setActive] = useState("about");
   const [progress, setProgress] = useState(0);
   const [palette, setPalette] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuButtonRef = useRef(null);
+  const headerRef = useRef(null);
   const [skillTab, setSkillTab] = useState("All");
   const [openExp, setOpenExp] = useState(0);
   const [copied, setCopied] = useState(false);
@@ -195,7 +217,29 @@ export default function App() {
   const [clock, setClock] = useState(new Date());
   const glowRef = useRef(null);
 
-  const go = useCallback((id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }), []);
+  const go = useCallback((id) => {
+    setMenuOpen(false);
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const dismiss = (event) => {
+      if (!headerRef.current?.contains(event.target)) setMenuOpen(false);
+    };
+    const escape = (event) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    };
+    document.addEventListener("pointerdown", dismiss);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("pointerdown", dismiss);
+      document.removeEventListener("keydown", escape);
+    };
+  }, [menuOpen]);
 
   useEffect(() => {
     const id = setInterval(() => setClock(new Date()), 1000);
@@ -232,6 +276,7 @@ export default function App() {
 
   const actions = [
     ...NAV.map((id) => ({ label: `cd ~/${id}`, hint: "nav", run: () => go(id) })),
+    { label: "toggle dark / light theme", hint: "theme", run: toggleTheme },
     { label: "copy email", hint: "copy", run: copyEmail },
     { label: "open github", hint: "link", run: () => open(profile.links.github, "_blank") },
     { label: "open linkedin", hint: "link", run: () => open(profile.links.linkedin, "_blank") },
@@ -255,17 +300,34 @@ export default function App() {
       <div className="cursor-glow" ref={glowRef} aria-hidden />
       <div className="progress" style={{ width: `${progress}%` }} />
 
-      <header className="nav-wrap">
-        <nav className="panel nav">
+      <header className="nav-wrap" ref={headerRef}>
+        <nav className={`panel nav ${menuOpen ? "menu-open" : ""}`} aria-label="Main navigation">
           <a className="logo" href="#about" onClick={(e) => { e.preventDefault(); go("about"); }}>
             <span className="g">naveen</span><span className="d">@</span>portfolio<span className="d">:~$</span>
           </a>
-          <ul>
+          <ul id="section-navigation">
             {NAV.map((id, i) => (
               <li key={id}><a href={`#${id}`} className={active === id ? "on" : ""} onClick={(e) => { e.preventDefault(); go(id); }}><b>0{i + 1}</b> {id}</a></li>
             ))}
           </ul>
-          <button className="kbtn" onClick={() => setPalette(true)} aria-label="Open command palette"><kbd>Ctrl</kbd><kbd>K</kbd></button>
+          <div className="nav-utilities">
+            <button ref={menuButtonRef} className="utility-btn menu-toggle"
+              onClick={() => setMenuOpen((open) => !open)}
+              aria-expanded={menuOpen} aria-controls="section-navigation"
+              aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+                {menuOpen ? <path d="m6 6 12 12M18 6 6 18" /> : <path d="M4 6h16M4 12h16M4 18h16" />}
+              </svg>
+            </button>
+            <button className="utility-btn" onClick={toggleTheme}
+              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+              title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}>
+              <span aria-hidden="true">{theme === "dark" ? "☀" : "☾"}</span>
+              <span className="utility-label">{theme === "dark" ? "Light" : "Dark"}</span>
+            </button>
+            <button className="kbtn" onClick={() => setPalette(true)} aria-label="Open command palette"><kbd>Ctrl</kbd><kbd>K</kbd></button>
+          </div>
         </nav>
       </header>
 
@@ -449,6 +511,7 @@ gpa: ${education.gpa}`}</pre>
         <p>© {new Date().getFullYear()} {profile.name} · built with React · <kbd>Ctrl</kbd> <kbd>K</kbd> for command palette</p>
       </footer>
 
+      <AmbientMusic />
       <CommandPalette open={palette} setOpen={setPalette} actions={actions} />
     </>
   );
