@@ -213,6 +213,9 @@ export default function App() {
   const [openExp, setOpenExp] = useState(0);
   const [copied, setCopied] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [sending, setSending] = useState(false);
+  const [submission, setSubmission] = useState(null);
+  const submittingRef = useRef(false);
   const [clock, setClock] = useState(new Date());
   const glowRef = useRef(null);
 
@@ -282,11 +285,45 @@ export default function App() {
     { label: "download resume", hint: "pdf", run: () => { const a = document.createElement("a"); a.href = "Naveenkumar Kalluri.pdf"; a.download = ""; a.click(); } },
   ];
 
-  const send = (e) => {
+  const send = async (e) => {
     e.preventDefault();
-    const sub = encodeURIComponent(`Portfolio inquiry from ${form.name}`);
-    const body = encodeURIComponent(`${form.message}\n\n— ${form.name} (${form.email})`);
-    location.href = `mailto:${profile.email}?subject=${sub}&body=${body}`;
+    if (submittingRef.current) return;
+    if (!form.name.trim() || !form.message.trim()) {
+      setSubmission({ type: "error", message: "Please enter your name and a message, not just spaces." });
+      return;
+    }
+    submittingRef.current = true;
+    setSending(true);
+    setSubmission(null);
+    const data = new FormData(e.currentTarget);
+    data.set("name", form.name.trim());
+    data.set("email", form.email.trim());
+    data.set("message", form.message.trim());
+    data.set("_subject", "New portfolio contact message");
+    try {
+      const response = await fetch("https://formspree.io/f/mzeejekv", {
+        method: "POST",
+        body: data,
+        headers: { Accept: "application/json" },
+        signal: AbortSignal.timeout(20000),
+      });
+      if (!response.ok) {
+        throw new Error(`Formspree rejected the submission (HTTP ${response.status}).`);
+      }
+      const result = await response.json();
+      if (result.ok !== true) throw new Error("Formspree did not confirm the submission.");
+      setSubmission({ type: "success", message: "Thanks! Your message was submitted successfully." });
+      setForm({ name: "", email: "", message: "" });
+    } catch (error) {
+      console.error("Contact submission failed:", error);
+      setSubmission({
+        type: "error",
+        message: "Your message could not be confirmed. Please try again, or email me directly.",
+      });
+    } finally {
+      submittingRef.current = false;
+      setSending(false);
+    }
   };
 
   const skillGroups = Object.entries(skills).filter(([k]) => skillTab === "All" || k === skillTab);
@@ -495,11 +532,26 @@ gpa: ${education.gpa}`}</pre>
                 <a href={`tel:${profile.phone}`}>{profile.phone}</a>
                 <span>{profile.location}</span>
               </div>
-              <form onSubmit={send}>
-                <input required placeholder="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-                <input required type="email" placeholder="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-                <textarea required rows="4" placeholder="message" value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} />
-                <button className="btn primary" type="submit">./send-message</button>
+              <form onSubmit={send} aria-busy={sending}>
+                <input required name="name" aria-label="Your name" autoComplete="name" disabled={sending}
+                  placeholder="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                <input required name="email" aria-label="Your email" autoComplete="email" disabled={sending}
+                  type="email" placeholder="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+                <textarea required name="message" aria-label="Your message" disabled={sending}
+                  rows="4" placeholder="message" value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} />
+                <p className="contact-notice">Your name, email, and message are sent through Formspree to deliver your inquiry.</p>
+                <button className="btn primary" type="submit" disabled={sending}>
+                  {sending ? "Sending..." : "./send-message"}
+                </button>
+                {submission && (
+                  <p className={`form-feedback ${submission.type}`}
+                    role={submission.type === "error" ? "alert" : "status"}>
+                    {submission.message}
+                    {submission.type === "error" && (
+                      <> <a href={`mailto:${profile.email}`}>Email me directly</a>.</>
+                    )}
+                  </p>
+                )}
               </form>
             </Panel>
           </Reveal>

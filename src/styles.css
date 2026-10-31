@@ -213,6 +213,12 @@ input, textarea { width: 100%; padding: 12px 14px; border-radius: 8px; border: 1
 input::placeholder, textarea::placeholder { color: #4d6176; }
 input:focus, textarea:focus { border-color: var(--g); box-shadow: 0 0 0 3px rgba(61,255,176,.12); }
 form .btn { justify-self: start; cursor: pointer; }
+form .btn:disabled { opacity: .65; cursor: wait; transform: none; }
+.contact-notice { font-size: .78rem; color: var(--muted); }
+.form-feedback { font-size: .88rem; overflow-wrap: anywhere; }
+.form-feedback.success { color: var(--g); }
+.form-feedback.error { color: var(--text); border-left: 2px solid var(--y); padding-left: 12px; }
+.form-feedback a { text-decoration: underline; color: var(--c); }
 footer { text-align: center; padding: 36px 20px 48px; color: var(--muted); font: .78rem var(--mono); }
 
 /* palette */
